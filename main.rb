@@ -32,7 +32,7 @@ def getReceitas (url)
   doc = Nokogiri::HTML(open(url))
   nx = doc.css("a.next")
   if nx != nil
-    nx = nx.attributes['href']
+    nx = nx[0].attributes['href']
   end
 
   return doc.css(".content .listing li>a").map do |el|
@@ -53,7 +53,8 @@ def processaReceita (url)
     byebug
   end
   nome = doc.css(".page-title h1").children[0].text.gsub(/\n/, '')
-  texto = Sanitize.fragment(doc.css(".instructions .instructions")).ltrim.rtrim
+  texto = Sanitize.fragment(doc.css(".instructions .instructions"))
+  texto.lstrip!.rstrip!
 
   @db.execute("insert into receitas (nome, receita) values (?, ?)", nome, texto)
   rec_id = @db.get_first_value("select id from receitas where nome=?", nome)
@@ -87,7 +88,6 @@ begin
   categories.each do |cat|
     tospec = cat
     while (tospec) do
-      tospec = nil
       receitas, tospec = getReceitas(getRealUrl(tospec))
       receitas.each do |rec|
         processaReceita(rec)
