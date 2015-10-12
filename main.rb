@@ -14,7 +14,7 @@ def getCategories (url)
   doc = Nokogiri::HTML(open(url))
 
   return doc.css(".header li>a").map do |el|
-    BASE_URL + el.attributes['href'].value
+    el.attributes['href'].value
   end
 end
 
@@ -88,7 +88,7 @@ begin
   categories.each do |cat|
     tospec = cat
     while (tospec) do
-      receitas, tospec = getReceitas(getRealUrl(tospec))
+      receitas, tospec = getReceitas(getRealUrl(BASE_URL + tospec))
       receitas.each do |rec|
         processaReceita(rec)
       end
